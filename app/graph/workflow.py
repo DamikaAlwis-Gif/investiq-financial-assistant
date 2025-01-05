@@ -3,7 +3,6 @@ from langgraph.graph import StateGraph, START, END
 from .graph_state import GraphState
 from .nodes import call_model, tool_node, should_use_tools, remove_messages, should_summarize
 from .nodes import summarize_conversation, formulate_query
-from IPython.display import Image, display
 from langgraph.graph import StateGraph
 
 memory = MemorySaver()
@@ -27,7 +26,7 @@ app = workflow.compile(checkpointer=memory)
 
 
 def create_workflow():
-    # display(Image(app.get_graph().draw_mermaid_png()))
+    
     return app
 
 
