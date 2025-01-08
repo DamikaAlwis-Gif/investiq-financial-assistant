@@ -58,6 +58,7 @@ You can access the live version of InvestIQ here:
 
 ## Tech Stack 🛠️
 
+- **GroqAPI**
 - **Yahoo Finance API**
 - **LangGraph / LangChain**
 - **Scrapy / Playwright**
