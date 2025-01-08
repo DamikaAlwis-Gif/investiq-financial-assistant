@@ -239,3 +239,92 @@ def retrieve_news_data(news_data_request: str) -> List[Document]:
         return []
 
 
+def calculate_stock_returns(
+    stock_symbol: str,
+    investment_amount: float = 1000.0,
+    time_period: Literal['1_week', '1_month',
+                         '3_months', '6_months', '1_year'] = "1_year"
+) -> Dict[str, any]:
+    """Calculate simple return metrics for a stock over a specific time period.
+    
+    Args:
+        stock_symbol (str): The stock symbol to analyze (e.g., "AAPL")
+        investment_amount (float): Investment amount to calculate potential returns
+        time_period (str): Time period to analyze ('1_week', '1_month', '3_months', '6_months', '1_year')
+    
+    Returns:
+        Dict[str, Any]: Dictionary containing metrics:
+            - symbol (str): Stock symbol
+            - return_metrics (Dict): Percentage return for specified period
+            - potential_returns (Dict): Investment value calculations
+            
+    """
+    try:
+        # Map time periods to days
+        period_days = {
+            '1_week': 7,
+            '1_month': 30,
+            '3_months': 90,
+            '6_months': 180,
+            '1_year': 365
+        }
+
+        # Get stock data - fetch enough history based on requested period
+        stock = yf.Ticker(stock_symbol)
+        if time_period == '1_year':
+            hist = stock.history(period='1y')
+        elif time_period in ['3_months', '6_months']:
+            hist = stock.history(period='6mo')
+        else:
+            hist = stock.history(period='1mo')
+
+        if hist.empty:
+            raise ValueError(f"No data found for symbol {stock_symbol}")
+
+        # current_price = hist['Close'].iloc[-1]
+
+        # Calculate return for specified period only
+        period_return = calculate_period_return(hist, period_days[time_period])
+
+        # Calculate potential returns on investment
+        potential_returns = {
+            "time_period": time_period,
+            'initial_investment': investment_amount,
+            'current_value': round(investment_amount * (1 + period_return / 100), 2),
+            'total_return': round(investment_amount * (period_return / 100), 2)
+        }
+
+        # # Calculate basic stats
+        # basic_stats = {
+        #     'current_price': round(current_price, 2),
+        #     '50_day_ma': round(hist['Close'].rolling(window=50).mean().iloc[-1], 2),
+        #     '200_day_ma': round(hist['Close'].rolling(window=200).mean().iloc[-1], 2),
+        #     'highest_price': round(hist['High'].max(), 2),
+        #     'lowest_price': round(hist['Low'].min(), 2),
+        #     'average_volume': int(hist['Volume'].mean())
+        # }
+
+        return {
+            'symbol': stock_symbol,
+            'return_metrics': {time_period: round(period_return, 2)},
+            'potential_returns': potential_returns,
+            # 'basic_stats': basic_stats
+        }
+
+    except Exception as e:
+        raise ValueError(
+            f"Error calculating returns for {stock_symbol}: {str(e)}")
+
+
+def calculate_period_return(hist: pd.DataFrame, days: int) -> float:
+    """Calculate percentage return over a specific period."""
+    try:
+        # Get start and end prices
+        end_price = hist['Close'].iloc[-1]
+        start_idx = -min(days, len(hist))
+        start_price = hist['Close'].iloc[start_idx]
+
+        # Calculate percentage return
+        return ((end_price - start_price) / start_price) * 100
+    except:
+        return 0.0

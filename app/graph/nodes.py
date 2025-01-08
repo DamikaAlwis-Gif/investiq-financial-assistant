@@ -4,17 +4,16 @@ from .chains import get_formulated_query_chain
 from langchain_core.output_parsers import StrOutputParser
 from langchain_groq import ChatGroq
 import logging
-from .tools import retrieve_news_data, retrieve_stocks_data, retreive_stock_indicators_for_single_stock
+from .tools import retrieve_news_data, retrieve_stocks_data, retreive_stock_indicators_for_single_stock, calculate_stock_returns
 from langgraph.prebuilt import ToolNode
 from langgraph.graph import  END
-
 from typing import Literal
 
 tools = [
     retrieve_news_data,
     retrieve_stocks_data,
     retreive_stock_indicators_for_single_stock,
-    
+    calculate_stock_returns
 ]
 model_with_tools = ChatGroq(
     model="llama-3.1-8b-instant", temperature=0.0).bind_tools(tools)

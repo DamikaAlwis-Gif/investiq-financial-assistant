@@ -9,10 +9,9 @@ from config.constants import BOT_NAME, HEADER_TEXT, SUB_HEADER_TEXT
 import logging
 import os 
 def main():
-
+    
     # Load environment variables from .env file
     load_dotenv()
-
     json_files = get_json_files_list(JSON_FILES_DIRECTORY)
     if not json_files:
         logging.info(f"No JSON files found in {JSON_FILES_DIRECTORY}.")
@@ -92,6 +91,7 @@ def main():
 
             with st.chat_message("ai"):
                 # Display the AI's answer
+                answer = answer.replace("$","\$")
                 st.markdown(answer)
 
             # Add AI response to chat history
